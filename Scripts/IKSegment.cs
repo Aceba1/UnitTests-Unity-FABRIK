@@ -6,6 +6,7 @@ public class IKSegment : MonoBehaviour
 {
     public Transform next;
     public float length;
+    Vector3 instDir;
 
     public enum RotType : byte
     {
@@ -17,7 +18,10 @@ public class IKSegment : MonoBehaviour
 
     public RotType rotType;
 
-
+    public void SetEndPos(Vector3 pos)
+    {
+        transform.rotation = Quaternion.FromToRotation(next.position - transform.position, pos - transform.position);
+    }
 
     // Start is called before the first frame update
     void Awake()
@@ -29,11 +33,12 @@ public class IKSegment : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(transform.position, transform.position + transform.forward);
+        
     }
 }

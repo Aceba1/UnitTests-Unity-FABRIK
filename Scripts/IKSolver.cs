@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -47,7 +48,13 @@ public class IKSolver : MonoBehaviour
     private void MapToPoints()
     {
         for (int i = 0; i <= segmentCount; i++)
-            points[i] = transform.InverseTransformPoint(segmentPoints[i].position);
+            points[i] = segmentPoints[i].position;
+    }
+
+    private void MapToSegments()
+    {
+        for (int i = 0; i < segmentCount; i++)
+            segments[i].SetEndPos(points[i+1]);
     }
 
     private void MapLength()
@@ -56,11 +63,14 @@ public class IKSolver : MonoBehaviour
             lengths[i] = segments[i].length;
     }
 
+    private bool run;
+
     private void Solve()
     {
-        Vector3 targetPos = transform.InverseTransformPoint(target.position);
+        Vector3 targetPos = target.position;
 
         MapToPoints();
+
         for (int i = 0; i < 1; i++) // Yes. Only iterate once, for testing.
         {
             // Backward
@@ -76,17 +86,23 @@ public class IKSolver : MonoBehaviour
                 points[f] = (points[f] - points[f - 1]).normalized * lengths[f - 1] + points[f - 1];
             }
         }
+
+        run = run != Input.GetKey(KeyCode.W);
+        if (Input.GetKeyDown(KeyCode.Space) || run)
+        {
+            MapToSegments();
+        }
     }
 
     void OnDrawGizmos()
     {
+        if (points == null) return;
         Vector3 lastPoint = transform.position;
         foreach (var point in points)
         {
-            var _point = transform.TransformPoint(point);
-            Gizmos.DrawSphere(_point, 0.25f);
-            Gizmos.DrawLine(_point, lastPoint);
-            lastPoint = _point;
+            Gizmos.DrawSphere(point, 0.25f);
+            Gizmos.DrawLine(point, lastPoint);
+            lastPoint = point;
         }
     }
 }
